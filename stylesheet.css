@@ -6,24 +6,28 @@ img {
 	width: 110px;
 }
 
-td .false {
+img.false {
 	background-color: red;
 }
 
-td .true {
+img.true {
 	background-color: lime;
 }
 
-td .falseOt {
+img.falseOt {
 	background-color: orange;
 }
 
-td .trueOt {
+img.trueOt {
 	background-color: yellow;
 }
 
-td .lock {
+img.lock {
 	background-color: purple;
+}
+
+img.unbox {
+	background-color: black;
 }
 
 table.normal {
@@ -51,4 +55,16 @@ p.right {
 	margin: 200px;
 	margin-top: 0px;
 	margin-bottom: 50px;
+}
+
+.center {
+	text-align: center;
+}
+
+.gallery img {
+	padding: 5px;
+	margin: 5px;
+	transition: background 0.5s linear;
+	background-position: center;
+	background-size: cover;
 }

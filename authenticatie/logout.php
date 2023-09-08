@@ -11,5 +11,4 @@ $_SESSION['PROCESS_TEXT_HEAD'] = 'Logged out';
 $_SESSION['PROCESS_TEXT_BODY'] = 'You are no longer logged in!';
 
 header('location:../dex.php');
-
 ?>

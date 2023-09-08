@@ -12,14 +12,12 @@ if (isset($_POST['list'][0]))
 	$list = JSON_decode('['.($_POST['list'][0]).']');
 	$slist = JSON_decode('['.($_POST['slist'][0]).']');
 }
-else
-{
-	for ($i = 0; $i < NUM_NORMAL_POKEMON; $i++)
-		array_push($list, false);
-	
-	for ($i = 0; $i < NUM_SHINY_POKEMON; $i++)
-		array_push($slist, false);
-}
+
+for ($i = count($list); $i < NUM_NORMAL_POKEMON; $i++)
+	array_push($list, false);
+
+for ($i = count($slist); $i < NUM_SHINY_POKEMON; $i++)
+	array_push($slist, false);
 
 if ($_SESSION['LOGIN_OK'])
 {
@@ -76,16 +74,10 @@ $totalShiny = 0;
 $totalNotShiny = 0;
 
 foreach ($list as $pokemon)
-{
 	($pokemon == true ? $totalNormal++ : $totalNotNormal++);
-}
 
 foreach ($slist as $pokemon)
-{
 	($pokemon == true ? $totalShiny++ : $totalNotShiny++);
-}
-
-
 ?>
 
 <form action="dex.php" method="post">
@@ -112,40 +104,32 @@ print('<br>Shiny Pokémon nodig: '.$totalNotShiny.'</p>');
 <br>
 <br>
 
+<style>
+.stripe-through {
+	text-decoration: line-through;
+}
+</style>
+
 <p>Todo:</p>
-<ul>Make a repo for this</ul>
-<ul>Add page for unboxable pokemon (merge with special)</ul>
-<ul>Add back display for certain pokemon on hover</ul>
-<ul>Move Furfrou forms (Normal + Shiny) out of unboxable</ul>
-<ul>Add BDSP Manaphy Egg (no others I think)</ul>
-<ul>Add new Pokémon (Legends Arceus)</ul>
-<ul>Add new Pokémon (SV)</ul>
-<ul>Add new Pokémon (SV Teal Mask)</ul>
+<ul>
+	<li class="stripe-through">Make a repo for this</li>
+	<li class="stripe-through">Add page for unboxable pokemon (merge with special)</li>
+	<li class="stripe-through">Add BDSP Manaphy Egg</li>
+	<li class="stripe-through">Move Furfrou forms (Normal + Shiny) and Sky Shaymin out of unboxable</li>
+	<li class="stripe-through">Add new Pokémon (Legends Arceus)</li>
+	<li class="stripe-through">Add new Pokémon (SV)</li>
+	<li>Add new Pokémon (SV Teal Mask)</li>
+</ul>
 
 <?php
-$dexLimit = NUM_NORMAL_POKEMON;
-$shinyLimit = NUM_SHINY_POKEMON;
-
-$lockList = array(194,196,198,662,832,833,834,870,871,946,947,948,1027,1028,1039,1040,1041,1135,1136,1137,1138,1139,1140,1141,1142,1145,1146,1147);
-$normalLockList = array(1208);
-$otLockList = array(/*33,34,35,36,37,38,39,40,516,842,843,878,879,953,954,955,956,1049,1054,1207*/);
-$shinyOtLockList = array(/*508,661,835,945,1046*/);
-
 function Box($start, $shiny)
 {
-	$dexLimit = NUM_NORMAL_POKEMON;
-	$shinyLimit = NUM_SHINY_POKEMON;
-	
 	$current = $start;
 	
 	if (!$shiny)
-	{
 		print('<tr><th colspan="6">Box '.ceil($start / 30).'</th></tr>');
-	}
 	else
-	{
 		print('<tr><th colspan="6">Shiny Box '.ceil($start / 30).'</th></tr>');
-	}
 
 	for ($i = 1; $i <= 5; $i++)
 	{
@@ -155,25 +139,17 @@ function Box($start, $shiny)
 		{
 			if (!$shiny)
 			{
-				if ($current > $dexLimit)
-				{
+				if ($current > NUM_NORMAL_POKEMON)
 					print('<td><img src="images/0.png"></td>');
-				}
 				else
-				{
 					print('<td><img onclick="change(event)" id="poke'.$current.'" src="images/normal/'.$current.'.png"></td>');
-				}
 			}
 			else
 			{
-				if ($current > $shinyLimit)
-				{
+				if ($current > NUM_SHINY_POKEMON)
 					print('<td><img src="images/0.png"></td>');
-				}
 				else
-				{
 					print('<td><img onclick="changeS(event)" id="shiny'.$current.'" src="images/shiny/'.$current.'.png"></td>');
-				}
 			}
 			
 			$current++;
@@ -185,30 +161,25 @@ function Box($start, $shiny)
 
 print('<table class="normal">');
 
-for ($i = 1; $i <= $dexLimit; $i = $i + 30)
-{
+for ($i = 1; $i <= NUM_NORMAL_POKEMON; $i += 30)
 	Box($i, false);
-}
 
 print('</table>');
 
-
 print('<table class="shiny">');
 
-for ($i = 1; $i <= $shinyLimit; $i = $i + 30)
-{
+for ($i = 1; $i <= NUM_SHINY_POKEMON; $i += 30)
 	Box($i, true);
-}
 
 print('</table>');
 print('');
 ?>
 <p id="test69"></p>
 <script>
-var LockList = <?php echo JSON_encode($lockList); ?>;
-var NormalLockList = <?php echo JSON_encode($normalLockList); ?>;
-var OtLockList = <?php echo JSON_encode($otLockList); ?>;
-var ShinyOtLockList = <?php echo JSON_encode($shinyOtLockList); ?>;
+var LockList = <?php echo JSON_encode($lockList[TYPE_SHINY]); ?>;
+var NormalLockList = <?php echo JSON_encode($lockList[TYPE_NORMAL]); ?>;
+var OtLockList = <?php echo JSON_encode($otLockList[TYPE_NORMAL]); ?>;
+var ShinyOtLockList = <?php echo JSON_encode($otLockList[TYPE_SHINY]); ?>;
 
 var List = <?php echo JSON_encode($list); ?>;
 var ShinyList = <?php echo JSON_encode($slist); ?>;
@@ -237,64 +208,52 @@ for (var i = 0; i < <?php echo NUM_SHINY_POKEMON; ?>; i++)
 {
 	var pokeID = "shiny" + (i + 1);
 	
-	if (!LockList.includes(i + 1))
-	{
-		if (!ShinyOtLockList.includes(i + 1))
-		{
-			document.getElementById(pokeID).className = ShinyList[i];
-		}
-		else
-		{
-			document.getElementById(pokeID).className = ShinyList[i] + "Ot";
-		}
-	}
-	else
-	{
+	if (LockList.includes(i + 1))
 		document.getElementById(pokeID).className = "lock";
-	}
+	else if (!ShinyOtLockList.includes(i + 1))
+		document.getElementById(pokeID).className = ShinyList[i];
+	else
+		document.getElementById(pokeID).className = ShinyList[i] + "Ot";
 }
 
 function change(e)
 {
-	var NormalLockList = <?php echo JSON_encode($normalLockList); ?>;
-	var OtLockList = <?php echo JSON_encode($otLockList); ?>;
+	var NormalLockList = <?php echo JSON_encode($lockList[TYPE_NORMAL]); ?>;
+	var OtLockList = <?php echo JSON_encode($otLockList[TYPE_NORMAL]); ?>;
 	
 	var element = e.target;
 	var lid = element.id.substr(4);
 	
-	if (!NormalLockList.includes(parseInt(lid)))
+	if (NormalLockList.includes(parseInt(lid)))
 	{
-		if (!OtLockList.includes(parseInt(lid)))
+		element.className = "lock";
+		List[lid - 1] = false;
+	}
+	else if (OtLockList.includes(parseInt(lid)))
+	{
+		if (element.className == "falseOt")
 		{
-			if (element.className == "false")
-			{
-				element.className = "true";
-				List[lid - 1] = true;
-			}
-			else
-			{
-				element.className = "false";
-				List[lid - 1] = false;
-			}
+			element.className = "trueOt";
+			List[lid - 1] = true;
 		}
 		else
 		{
-			if (element.className == "falseOt")
-			{
-				element.className = "trueOt";
-				List[lid - 1] = true;
-			}
-			else
-			{
-				element.className = "falseOt";
-				List[lid - 1] = false;
-			}
+			element.className = "falseOt";
+			List[lid - 1] = false;
 		}
 	}
 	else
 	{
-		element.className = "lock";
-		List[lid - 1] = false;
+		if (element.className == "false")
+		{
+			element.className = "true";
+			List[lid - 1] = true;
+		}
+		else
+		{
+			element.className = "false";
+			List[lid - 1] = false;
+		}
 	}
 	
 	document.getElementById("list").setAttribute("value", List);
@@ -302,45 +261,42 @@ function change(e)
 
 function changeS(e)
 {
-	var LockList = <?php echo JSON_encode($lockList); ?>;
-	var ShinyOtLockList = <?php echo JSON_encode($shinyOtLockList); ?>;
+	var LockList = <?php echo JSON_encode($lockList[TYPE_SHINY]); ?>;
+	var ShinyOtLockList = <?php echo JSON_encode($otLockList[TYPE_SHINY]); ?>;
 	
 	var element = e.target;
 	var slid = element.id.substr(5);
 	
-	if (!LockList.includes(parseInt(slid)))
+	if (LockList.includes(parseInt(slid)))
 	{
-		if (!ShinyOtLockList.includes(parseInt(slid)))
+		element.className = "lock";
+		ShinyList[slid - 1] = false;
+	}
+	else if (ShinyOtLockList.includes(parseInt(slid)))
+	{
+		if (element.className == "falseOt")
 		{
-			if (element.className == "false")
-			{
-				element.className = "true";
-				ShinyList[slid - 1] = true;
-			}
-			else
-			{
-				element.className = "false";
-				ShinyList[slid - 1] = false;
-			}
+			element.className = "trueOt";
+			ShinyList[slid - 1] = true;
 		}
 		else
 		{
-			if (element.className == "falseOt")
-			{
-				element.className = "trueOt";
-				ShinyList[slid - 1] = true;
-			}
-			else
-			{
-				element.className = "falseOt";
-				ShinyList[slid - 1] = false;
-			}
+			element.className = "falseOt";
+			ShinyList[slid - 1] = false;
 		}
 	}
 	else
 	{
-		element.className = "lock";
-		ShinyList[slid - 1] = false;
+		if (element.className == "false")
+		{
+			element.className = "true";
+			ShinyList[slid - 1] = true;
+		}
+		else
+		{
+			element.className = "false";
+			ShinyList[slid - 1] = false;
+		}
 	}
 	
 	document.getElementById("slist").setAttribute("value", ShinyList);

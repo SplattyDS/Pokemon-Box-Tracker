@@ -1,12 +1,6 @@
 <?php
 define('TITLE', 'PokeBox Updater');
 
-define('TYPE_NORMAL', 0);
-define('TYPE_SHINY', 1);
-define('TYPE_GMAX', 2);
-define('TYPE_SHINY_GMAX', 3);
-define('NUM_TYPES', 4);
-
 require('config.php');
 require('includes/navbar.php');
 
@@ -37,25 +31,21 @@ function GetDatas()
 {
 	global $dbh;
 	
-	global $list;
-	global $slist;
-	
 	if ($_SESSION['LOGIN_OK'])
 	{
-		$sql1 = 'SELECT Username, NormalData, ShinyData FROM users WHERE Id = '.$_SESSION['Id'];
-		$sql2 = 'UPDATE users SET NormalData = :normal, ShinyData = :shiny WHERE Id = '.$_SESSION['Id'];
+		$sql1 = 'SELECT Username, NormalData, ShinyData, NormalGmaxData, ShinyGmaxData FROM users WHERE Id = '.$_SESSION['Id'];
 		
 		$results1 = $dbh->query($sql1);
 		
 		foreach ($results1 as $resultaat)
 		{
-			$enlist = $resultaat[1];
-			$enslist = $resultaat[2];
-			
-			$list = JSON_decode('['.$enlist.']');
-			$slist = JSON_decode('['.$enslist.']');
-			
-			return array($list, $slist, array(), array());
+			return array
+			(
+				JSON_decode('['.$resultaat[1].']'),
+				JSON_decode('['.$resultaat[2].']'),
+				JSON_decode('['.$resultaat[3].']'),
+				JSON_decode('['.$resultaat[4].']'),
+			);
 		}
 	}
 }
@@ -64,8 +54,8 @@ function StoreDatas($datas)
 {
 	global $dbh;
 	
-	$sql1 = 'SELECT Username, NormalData, ShinyData FROM users WHERE Id = '.$_SESSION['Id'];
-	$sql3 = 'UPDATE users SET NormalData = :normal, ShinyData = :shiny WHERE Id = '.$_SESSION['Id'];
+	$sql1 = 'SELECT Username, NormalData, ShinyData, NormalGmaxData, ShinyGmaxData FROM users WHERE Id = '.$_SESSION['Id'];
+	$sql3 = 'UPDATE users SET NormalData = :normal, ShinyData = :shiny, NormalGmaxData = :normalG, ShinyGmaxData = :shinyG WHERE Id = '.$_SESSION['Id'];
 	
 	$results1 = $dbh->query($sql1);
 	
@@ -73,14 +63,20 @@ function StoreDatas($datas)
 	{
 		if ($stmt3 = $dbh->prepare($sql3))
 		{
-			$JS3_1 = JSON_encode($datas[0]);
-			$JS3_2 = JSON_encode($datas[1]);
+			$JS3_0 = JSON_encode($datas[0]);
+			$JS3_1 = JSON_encode($datas[1]);
+			$JS3_2 = JSON_encode($datas[2]);
+			$JS3_3 = JSON_encode($datas[3]);
 			
+			$ARR3_0 = substr($JS3_0, 1, strlen($JS3_0) - 2);
 			$ARR3_1 = substr($JS3_1, 1, strlen($JS3_1) - 2);
 			$ARR3_2 = substr($JS3_2, 1, strlen($JS3_2) - 2);
+			$ARR3_3 = substr($JS3_3, 1, strlen($JS3_3) - 2);
 			
-			$stmt3->bindParam(":normal", $ARR3_1, PDO::PARAM_STR);
-			$stmt3->bindParam(":shiny", $ARR3_2, PDO::PARAM_STR);
+			$stmt3->bindParam(":normal", $ARR3_0, PDO::PARAM_STR);
+			$stmt3->bindParam(":shiny", $ARR3_1, PDO::PARAM_STR);
+			$stmt3->bindParam(":normalG", $ARR3_2, PDO::PARAM_STR);
+			$stmt3->bindParam(":shinyG", $ARR3_3, PDO::PARAM_STR);
 			
 			$stmt3->execute();
 		}
@@ -99,24 +95,30 @@ function CheckLength($datas, $length, $type)
 
 if (Backup())
 {
-	$list = array();
-	$slist = array();
-	
-	for ($i = 0; $i < NUM_NORMAL_POKEMON; $i++)
-		array_push($list, false);
-	
-	for ($i = 0; $i < NUM_SHINY_POKEMON; $i++)
-		array_push($slist, false);
-	
-	// structure: at num type (inserts num amount of new ids between at and (at + 1)
+	// structure: at num type (inserts 'num' amount of new ids at 'at')
 	// type: 0: normal, 1: shiny, 2: gmax, 3: shiny gmax
 	$changeInfos = array
 	(
-		// array(1200, 3, TYPE_NORMAL),
-		// array(0, 1, TYPE_NORMAL),
-		// array(1100, 3, TYPE_SHINY),
-		// array(1200, 3, TYPE_GMAX),
-		// array(1200, 3, TYPE_SHINY_GMAX),
+		// array(669, 1, TYPE_NORMAL),
+		// array(904, 9, TYPE_NORMAL),
+		// array(661, 1, TYPE_SHINY),
+		// array(896, 9, TYPE_SHINY),
+		// array(89, 1, TYPE_NORMAL),
+		// array(91, 1, TYPE_NORMAL),
+		// array(148, 1, TYPE_NORMAL),
+		// array(150, 1, TYPE_NORMAL),
+		// array(223, 1, TYPE_NORMAL),
+		// array(319, 1, TYPE_NORMAL),
+		// array(689, 1, TYPE_NORMAL),
+		// array(737, 1, TYPE_NORMAL),
+		// array(740, 1, TYPE_NORMAL),
+		// array(764, 1, TYPE_NORMAL),
+		// array(766, 1, TYPE_NORMAL),
+		// array(833, 1, TYPE_NORMAL),
+		// array(957, 1, TYPE_NORMAL),
+		// array(959, 1, TYPE_NORMAL),
+		// array(973, 1, TYPE_NORMAL),
+		// array(987, 1, TYPE_NORMAL),
 	);
 	
 	$datas = GetDatas();
@@ -140,12 +142,14 @@ if (Backup())
 	}
 	
 	// these are the new lenghts
-	if (!CheckLength($datas, NUM_NORMAL_POKEMON /*+ 4*/, TYPE_NORMAL)) die();
-	if (!CheckLength($datas, NUM_SHINY_POKEMON /*+ 3*/, TYPE_SHINY)) die();
-	if (!CheckLength($datas, NUM_GMAX_POKEMON, TYPE_GMAX)) die();
-	if (!CheckLength($datas, NUM_SHINY_GMAX_POKEMON, TYPE_SHINY_GMAX)) die();
+	// if (!CheckLength($datas, NUM_NORMAL_POKEMON, TYPE_NORMAL)) die();
+	// if (!CheckLength($datas, NUM_SHINY_POKEMON, TYPE_SHINY)) die();
+	// if (!CheckLength($datas, NUM_GMAX_POKEMON, TYPE_GMAX)) die();
+	// if (!CheckLength($datas, NUM_SHINY_GMAX_POKEMON, TYPE_SHINY_GMAX)) die();
 	
 	StoreDatas($datas);
+	
+	print('<p>Done.</p>');
 }
 
 ?>
