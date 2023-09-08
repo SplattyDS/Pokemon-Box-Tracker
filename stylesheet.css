@@ -1,0 +1,54 @@
+body {
+	margin: 75px;
+}
+
+img {
+	width: 110px;
+}
+
+td .false {
+	background-color: red;
+}
+
+td .true {
+	background-color: lime;
+}
+
+td .falseOt {
+	background-color: orange;
+}
+
+td .trueOt {
+	background-color: yellow;
+}
+
+td .lock {
+	background-color: purple;
+}
+
+table.normal {
+	float: left;
+}
+
+table.shiny {
+	float: right;
+}
+
+th, td img {
+	text-align: center;
+	padding: 5px;
+}
+
+p.left {
+	float: left;
+	margin: 200px;
+	margin-top: 0px;
+	margin-bottom: 50px;
+}
+
+p.right {
+	float: right;
+	margin: 200px;
+	margin-top: 0px;
+	margin-bottom: 50px;
+}
