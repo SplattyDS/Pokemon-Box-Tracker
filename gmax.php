@@ -103,10 +103,12 @@ function Box($start, $shiny)
 {
 	$current = $start;
 	
+	$boxNum = ceil($start / 30);
+	
 	if (!$shiny)
-		print('<tr><th colspan="6">Box '.ceil($start / 30).'</th></tr>');
+		print('<tr onclick="batchChange(event)" id="boxTitle'.$boxNum.'"><th colspan="6">Gigantamax Box '.$boxNum.'</th></tr>');
 	else
-		print('<tr><th colspan="6">Shiny Box '.ceil($start / 30).'</th></tr>');
+		print('<tr onclick="batchChangeS(event)" id="boxTitleS'.$boxNum.'"><th colspan="6">Shiny Gigantamax Box '.$boxNum.'</th></tr>');
 
 	for ($i = 1; $i <= 5; $i++)
 	{
@@ -195,10 +197,29 @@ for (var i = 0; i < <?php echo NUM_SHINY_GMAX_POKEMON; ?>; i++)
 
 function change(e)
 {
+	doChange(e.target);
+}
+
+function changeS(e)
+{
+	doChangeS(e.target);
+}
+
+function batchChange(e)
+{
+	doBatchChange(e.target);
+}
+
+function batchChangeS(e)
+{
+	doBatchChangeS(e.target);
+}
+
+function doChange(element)
+{
 	var NormalLockList = <?php echo JSON_encode($lockList[TYPE_GMAX]); ?>;
 	var OtLockList = <?php echo JSON_encode($otLockList[TYPE_GMAX]); ?>;
 	
-	var element = e.target;
 	var lid = element.id.substr(4);
 	
 	if (NormalLockList.includes(parseInt(lid)))
@@ -236,12 +257,11 @@ function change(e)
 	document.getElementById("list").setAttribute("value", List);
 }
 
-function changeS(e)
+function doChangeS(element)
 {
 	var LockList = <?php echo JSON_encode($lockList[TYPE_SHINY_GMAX]); ?>;
 	var ShinyOtLockList = <?php echo JSON_encode($otLockList[TYPE_SHINY_GMAX]); ?>;
 	
-	var element = e.target;
 	var slid = element.id.substr(5);
 	
 	if (LockList.includes(parseInt(slid)))
@@ -277,6 +297,52 @@ function changeS(e)
 	}
 	
 	document.getElementById("slist").setAttribute("value", ShinyList);
+}
+
+function doBatchChange(e)
+{
+	var boxNum = parseInt(e.parentElement.id.substr(8));
+	// console.log(boxNum);
+	
+	var table = e.parentElement.parentElement;
+	// console.log(table.children);
+	
+	var startRowID = (boxNum - 1) * 5 + boxNum;
+	
+	for (var i = startRowID; i < startRowID + 5; i++)
+	{
+		var row = table.children[i];
+		// console.log(row);
+		
+		for (var j = 0; j < 6; j++)
+		{
+			// console.log(row.children[j].firstChild);
+			doChange(row.children[j].firstChild);
+		}
+	}
+}
+
+function doBatchChangeS(e)
+{
+	var boxNum = parseInt(e.parentElement.id.substr(9));
+	// console.log(boxNum);
+	
+	var table = e.parentElement.parentElement;
+	// console.log(table.children);
+	
+	var startRowID = (boxNum - 1) * 5 + boxNum;
+	
+	for (var i = startRowID; i < startRowID + 5; i++)
+	{
+		var row = table.children[i];
+		// console.log(row);
+		
+		for (var j = 0; j < 6; j++)
+		{
+			// console.log(row.children[j].firstChild);
+			doChangeS(row.children[j].firstChild);
+		}
+	}
 }
 
 document.getElementById("list").setAttribute("value", List);

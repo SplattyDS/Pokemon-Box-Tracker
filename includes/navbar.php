@@ -19,6 +19,7 @@
 				<li class="nav-item"><a class="nav-link" href="gmax.php">GMAX</a></li>
 				<li class="nav-item"><a class="nav-link" href="unbox.php">Unboxable</a></li>
 				<li class="nav-item"><a class="nav-link" href="lock.php">Locked</a></li>
+				<li class="nav-item"><a class="nav-link" href="rare.php">Rare</a></li>
 				<li class="nav-item"><a class="nav-link" href="updater.php">Updater</a></li>');
 		
 		if ($_SESSION['LOGIN_OK'])
